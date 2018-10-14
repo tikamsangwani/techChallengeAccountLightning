@@ -1,0 +1,267 @@
+<!--
+Name: AccountList.cmp
+-->
+<aura:component controller="AccountController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSobjectName,lightning:actionOverride,forceCommunity:availableForAllPageTypes,force:lightningQuickAction">
+    
+    <!--Declare Attributes-->
+    
+    
+    <aura:attribute name="showModal" type="boolean" default="false"/>    
+    <aura:attribute name="accountList" type="list" />  
+    <aura:attribute name="updateList" type="list" />
+    <aura:attribute name="isSelectAll" type="boolean" default="false"/>
+    <aura:attribute name="displayList" type="list" />
+    <aura:attribute name="objAccount" type="Account" default="{sobjectType: 'Account'}" /> 
+    <aura:attribute name="temp" type="boolean" default="false"/>
+    <aura:attribute name="showModalB" type="boolean" default="false"/>
+    <aura:attribute name="errorMessage" type="String" default=""/>
+   <aura:attribute name="objAccountId" type="String" />
+    <aura:attribute name="Type" type="String" default=""/>
+    <aura:attribute name="showModalB1" type="boolean" default="false"/>
+    
+    <!--Declare Event Handlers--> 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:handler event="force:showToast" action="{!c.refreshAll}"/>
+    <div class="slds-page-header">
+      <div class="slds-grid slds-grid--align-end"> 
+          <button class="slds-button slds-button--brand" onclick="{!c.new}">New</button>
+         <button class="slds-button slds-button--brand" onclick="{!c.updateRecordBulk}">Mass Edit</button>
+         <button class="slds-button slds-button--brand" onclick="{!c.deleteRecordBulk}">Mass Delete</button>
+      </div>
+   </div>
+     <c:AccountBulkEdit isActive="{!v.showModalB1}" selectedAccounts ="{!v.updateList}">
+        
+    </c:AccountBulkEdit>
+     
+    <div class="slds-m-around_xx-large" >        
+        <!--accounttact List Table-->
+        <table class="slds-table slds-table--bordered slds-table--cell-buffer" role="grid">      
+            <thead>  
+                <tr class="slds-text-title--caps">
+                    <th>           
+                        <label class="slds-checkbox">
+                            <ui:inputCheckbox value="{!v.isSelectAll}" change="{!c.handleSelectAllAccount}" aura:id="selectAll"/>
+                            <span class="slds-checkbox--faux" />
+                            <span class="slds-form-element__label"></span>
+                        </label>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="Account Name">Account Name</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="Account">Account Number</div>
+                    </th>
+                     <th scope="col">
+                        <div class="slds-truncate" title="Account Owner">Account Owner</div>
+                    </th>
+                    <th scope="col">
+                        <div class="slds-truncate" title="Account Source">Account Source</div>
+                    </th>
+                     
+                    <th scope="col">
+                        <div class="slds-truncate" title="Annual Revenue">Annual Revenue</div>
+                    </th>
+					<th scope="col">
+                        <div class="slds-truncate" title="Type">Type</div>
+                    </th>
+					<th scope="col">
+                        <div class="slds-truncate" title="Industry">Industry</div>
+                    </th>
+					<th scope="col">
+                        <div class="slds-truncate" title="Created By">Created By</div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>        
+                <aura:iteration items="{!v.accountList}" var="account">
+                    <tr>
+                        <th>
+                            <label class="slds-checkbox">
+                                <ui:inputCheckbox aura:id="checkAccount" value="" text="{!account.Id}" change="{!c.handleselectedAccounts}" />
+                                <span class="slds-checkbox--faux" />
+                                <span class="slds-form-element__label"></span>
+                            </label>
+                            <a onclick="{!c.edit}" name="{!account.Id}">
+                                Edit
+                            </a>                                
+                             <a onclick="{!c.deleteRecord}" name="{!account.Id}">
+                                Del
+                            </a> 
+                        </th>
+                        
+                        <th scope="row">
+                            <div class="slds-truncate" title="{!account.Name}">{!account.Name}</div>
+                        </th>
+                        <td>
+                            <div class="slds-truncate" title="{!account.AccountNumber}">{!account.AccountNumber}</div>
+                        </td>
+                        <td>
+                            <div class="slds-truncate" title="{!account.Owner.Name}">{!account.Owner.Name}</div>
+                        </td>
+                        <th scope="row">
+                            <div class="slds-truncate" title="{!account.AccountSource}">{!account.AccountSource}</div>
+                        </th>
+                        <td>
+                            <div class="slds-truncate" title="{!account.AnnualRevenue}">{!account.AnnualRevenue}</div>
+                        </td>
+						<td>
+                            <div class="slds-truncate" title="{!account.Type}">{!account.Type}</div>
+                        </td>
+						<td>
+                            <div class="slds-truncate" title="{!account.Industry}">{!account.Industry}</div>
+                        </td>
+                        <td>
+                            <div class="slds-truncate" title="{!account.CreatedBy.Name}">{!account.CreatedBy.Name}</div>
+                        </td>
+                    </tr>
+                </aura:iteration>
+            </tbody>
+        </table>
+        
+    </div>
+    
+    <div class="slds-m-around_xx-large">
+         <aura:if isTrue="{!not(empty(v.displayList))}">
+			<table class="slds-table slds-table--bordered slds-table--cell-buffer" role="grid">
+			<thead>
+				<th scope="col">
+				<div class="slds-truncate" title="Account Name">Account Name</div>
+				</th>
+				<th scope="col">
+					<div class="slds-truncate" title="Account Number">Account Number</div>
+				</th>
+				 <th scope="col">
+					<div class="slds-truncate" title="Account Owner">Account Owner</div>
+				</th>
+				<th scope="col">
+					<div class="slds-truncate" title="Account Source">Account Source</div>
+				</th>
+				 <th scope="col">
+					<div class="slds-truncate" title="Parent Account">Parent Account</div>
+				</th>
+				<th scope="col">
+					<div class="slds-truncate" title="Annual Revenue">Annual Revenue</div>
+				</th>
+                <th scope="col">
+					<div class="slds-truncate" title="Type">Type</div>
+				</th>
+				<th scope="col">
+					<div class="slds-truncate" title="Created By">Created By</div>
+				</th>
+                <th scope="col">
+					<div class="slds-truncate" title="Last Modified By">Last Modified By</div>
+				</th>
+                
+				<th scope="col">
+					<div class="slds-truncate" title="Industry">Industry</div>
+				</th>
+                <th scope="col">
+					<div class="slds-truncate" title="Discription">Discription</div>
+				</th>
+                <th scope="col">
+					<div class="slds-truncate" title="Phone">Phone</div>
+				</th>
+                <th scope="col">
+					<div class="slds-truncate" title="Fax">Fax</div>
+				</th>
+			</thead>
+			<tbody> 
+				<aura:iteration items="{!v.displayList}" var="account">
+				<tr>
+					<td>
+						<div class="slds-truncate" title="{!account.Name}">{!account.Name}</div>
+					</td>
+					<td>
+						<div class="slds-truncate" title="{!account.AccountNumber}">{!account.AccountNumber}</div>
+					</td>
+                    <td>
+						<div class="slds-truncate" title="{!account.Owner.Name}">{!account.Owner.Name}</div>
+					</td>
+					<td>
+						<div class="slds-truncate" title="{!account.AccountSource}">{!account.AccountSource}</div>
+					</td>
+                    <td>
+						<div class="slds-truncate" title="{!account.Parent.Name}">{!account.Parent.Name}</div>
+					</td>
+					<td>
+						<div class="slds-truncate" title="{!account.AnnualRevenue}">{!account.AnnualRevenue}</div>
+					</td>
+					<td>
+						<div class="slds-truncate" title="{!account.Type}">{!account.Type}</div>
+                    </td>
+                    <td>
+						<div class="slds-truncate" title="{!account.CreatedBy.Name}">{!account.CreatedBy.Name}</div>
+					</td>
+                    <td>
+						<div class="slds-truncate" title="{!account.LastModifiedBy.Name}">{!account.LastModifiedBy.Name}</div>
+					</td>
+					<td>
+						<div class="slds-truncate" title="{!account.Industry}">{!account.Industry}</div>
+					</td>
+                    <td>
+						<div class="slds-truncate" title="{!account.Description}">{!account.Description}</div>
+					</td>
+                    <td>
+						<div class="slds-truncate" title="{!account.Phone}">{!account.Phone}</div>
+					</td>
+                    <td>
+						<div class="slds-truncate" title="{!account.Fax}">{!account.Fax}</div>
+					</td>
+				</tr>
+                </aura:iteration>
+			</tbody> 
+			</table>
+        </aura:if>
+        </div>
+    <aura:if isTrue="{!v.showModal}">
+        <div class="demo-only" >
+            <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                <div class="slds-modal__container"  style="width:20px;">
+                    <header class="slds-modal__header slds-theme_error slds-theme_alert-texture">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <c:svg aria-hidden="true" class="slds-input__icon"
+                                   xlinkhref="/resource/CAMReportCSSNew/assets/icons/utility-sprite/svg/symbols.svg#close">
+                            </c:svg>
+                            
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 class="slds-text-heading_medium" id="prompt-heading-id">{!v.Type}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+                        <p><center style="font-size: 21px;">{!v.errorMessage}</center></p>
+                    </div>
+                    <footer class="slds-modal__footer slds-theme_default">
+                        <ui:button  aura:id="btnprimId"  press="{!c.deleteCoApp}" >Ok</ui:button>  
+                        <ui:button  aura:id="btnprimId"  press="{!c.close}" >Cancel</ui:button>  
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!v.showModal}">
+        <div class="demo-only" >
+            <section role="alertdialog" tabindex="-1" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                <div class="slds-modal__container"  style="width:20px;">
+                    <header class="slds-modal__header slds-theme_error slds-theme_alert-texture">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+                            <c:svg aria-hidden="true" class="slds-input__icon">
+                            </c:svg>
+                            
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 class="slds-text-heading_medium" id="prompt-heading-id">{!v.Type}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+                        <p><center style="font-size: 21px;">{!v.errorMessage}</center></p>
+                    </div>
+                    <footer class="slds-modal__footer slds-theme_default">
+                        <ui:button  aura:id="btnprimId2"  press="{!c.deleteSelected}" >Ok</ui:button>  
+                        <ui:button  aura:id="btnprimId2"  press="{!c.close}" >Cancel</ui:button>  
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+</aura:component>

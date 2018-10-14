@@ -1,0 +1,42 @@
+<aura:component controller="AccountController">
+    <aura:attribute name="isActive" type="Boolean" default="false" required="true" />
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:attribute name="objAccount" type="Account" default="{'sObjectType':'Account'}"/>
+    <aura:attribute name="conditionalSanctionOptions" type="List" default="[{'label':'--none--','value':''}]" />
+    <aura:attribute name="selectedAccounts" type="list" />
+    <aura:attribute name="selectedAccountSource" type="String" />
+    <aura:renderIf isTrue="{!v.isActive}">
+    <div class="slds-m-around_xx-large">
+        <table class="slds-table slds-table--bordered slds-table--cell-buffer" role="grid"> 
+            <thead>
+                <tr class="slds-text-heading_label">
+                    <th scope="col"><div class="slds-truncate" title="ID"><b>Account Source</b></div></th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr>
+                    <td>
+                        <ui:inputSelect aura:id="ConId"  multiple="false" change="{!c.onSelectChange}">
+                            <ui:inputSelectOption text="" label="--None--"/>
+                            <aura:iteration items="{!v.conditionalSanctionOptions}" var="optionaValue">
+                                <ui:inputSelectOption text="{!optionaValue.value}" label="{!optionaValue.label}"/>
+                            </aura:iteration>
+                        </ui:inputSelect>
+                    </td>
+                    <td>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-size_1-of-1 slds-text-align_center">
+                                <lightning:button variant="brand" label="Update Account" onclick="{!c.saveRecord}"/>
+                                <lightning:button variant="brand" label="Cancel" onclick="{!c.cancelAccount}"/>
+                            </div>
+                        </div>	
+                    </td>
+                </tr>
+                     
+                    
+            </tbody>
+        </table>
+        </div>
+        </aura:renderIf>
+</aura:component>
